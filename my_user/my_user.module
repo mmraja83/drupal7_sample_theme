@@ -1,0 +1,45 @@
+<?php
+
+function my_user_menu()
+{
+    $items = array();
+    $items['myuser'] = array(
+    'title' => t('My User Module'),
+    'page callback' => 'get_my_users',
+    'access arguments'=> array('access content'),
+  );
+    return $items;
+}
+
+/**
+ * Get User list.
+*/
+function get_my_users()
+{
+    $query = db_select('users', 'u')->fields('u');
+    $result = $query->execute();
+    $num_of_user = $result->rowCount();
+
+    // Check users count is odd or even.
+    // If user count is odd, just display the imap_msgno
+    // If user count is even, display user table data.
+    $output = t('User record count is odd');
+    if ($num_of_user % 2 == 0) {
+        $query = db_select('users', 'u');
+        $query->join('users_roles', 'r', 'u.uid = r.uid');
+        $query
+          ->fields('u', array('uid', 'name','mail'))
+          ->fields('r', array('rid'))
+          ->orderBy('r.uid', 'DESC');
+        $result = $query->execute();
+        $data = array();
+        $resulSet = $result->fetchAll();
+        if (!empty($resulSet)) {
+            foreach ($resulSet as $userDet) {
+                $data[] = array($userDet->uid, $userDet->name, $userDet->mail, $userDet->rid);
+            }
+        }
+        $output = theme('table', array('header' => array('UID', 'Name', 'E-Mail', 'RID'), 'rows' => $data));
+    }
+    return $output;
+}

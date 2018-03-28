@@ -1,0 +1,6 @@
+name = My User Module
+description = This is simple module for beginners and learners.
+package = Sample Module.
+core = 7.x
+version = 7.x-1.0
+datestamp = 1522117066
